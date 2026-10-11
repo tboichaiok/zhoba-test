@@ -234,108 +234,141 @@
           </p>
         </div>
 
-        <!-- 3D Model Main Tabs -->
-        <div class="flex flex-wrap gap-1.5 p-1.5 bg-lab-100 rounded-2xl border border-lab-200 font-semibold text-xs">
-          <button onclick="select3DMode('plants')" id="tab-plants" class="px-3.5 py-2 rounded-xl transition-all bg-white text-tech-blue font-bold shadow-sm">
-            🌱 1. Редис өсу динамикасы (1-21 күн)
+        <!-- 3D Model Main Tabs (Responsive Horizontal Scroll) -->
+        <div class="flex flex-nowrap overflow-x-auto no-scrollbar gap-1.5 p-1.5 bg-lab-100 rounded-2xl border border-lab-200 font-semibold text-xs max-w-full">
+          <button onclick="select3DMode('plants')" id="tab-plants" class="px-3.5 py-2 rounded-xl transition-all bg-white text-tech-blue font-bold shadow-sm whitespace-nowrap shrink-0">
+            🌱 1. Редис өсуі (1-21 күн)
           </button>
-          <button onclick="select3DMode('clinostat')" id="tab-clinostat" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900">
+          <button onclick="select3DMode('clinostat')" id="tab-clinostat" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900 whitespace-nowrap shrink-0">
             🔄 2. 3D-Клиностат (2-Ось)
           </button>
-          <button onclick="select3DMode('arduino')" id="tab-arduino" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900">
+          <button onclick="select3DMode('arduino')" id="tab-arduino" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900 whitespace-nowrap shrink-0">
             ⚡ 3. Arduino Биореактор
           </button>
-          <button onclick="select3DMode('chamber')" id="tab-chamber" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900">
-            🔬 4. Камера Цифрлық Егіз (Жанды 3D)
+          <button onclick="select3DMode('chamber')" id="tab-chamber" class="px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900 whitespace-nowrap shrink-0">
+            🔬 4. Камера Цифрлық Егіз
           </button>
         </div>
       </div>
 
-      <!-- MAIN 3D VIEWPORT CONTAINER -->
-      <div class="relative w-full h-[520px] rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200/90 border border-slate-300 shadow-inner">
-        
-        <!-- Live WebGL Canvas -->
-        <div id="three-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+      <!-- MAIN 3D & TELEMETRY GRID (Responsive 8/4 split on desktop, stacked on mobile) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
-        <!-- Loading Spinner Overlay -->
-        <div id="model-loader-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-30 transition-opacity duration-300 pointer-events-none opacity-0">
-          <div class="w-12 h-12 border-4 border-tech-blue/30 border-t-tech-blue rounded-full animate-spin"></div>
-          <span class="text-xs font-bold text-lab-800 font-mono" id="model-loader-text">3D Модель жүктелуде...</span>
+        <!-- LEFT (8 COLS): 100% UNOBSTRUCTED 3D VIEWPORT -->
+        <div class="lg:col-span-8 flex flex-col">
+          <div class="relative w-full h-[340px] sm:h-[440px] lg:h-[520px] rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200/90 border border-slate-300 shadow-inner group">
+            
+            <!-- Live WebGL Canvas -->
+            <div id="three-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+            <!-- Loading Spinner Overlay -->
+            <div id="model-loader-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-30 transition-opacity duration-300 pointer-events-none opacity-0">
+              <div class="w-12 h-12 border-4 border-tech-blue/30 border-t-tech-blue rounded-full animate-spin"></div>
+              <span class="text-xs font-bold text-lab-800 font-mono" id="model-loader-text">3D Модель жүктелуде...</span>
+            </div>
+
+            <!-- CAMERA RESET & VIEW BUTTONS (TOP RIGHT) -->
+            <div class="absolute top-3 right-3 flex items-center gap-2 z-20">
+              <button onclick="resetCameraView()" title="Камераны қалпына келтіру" class="p-2 sm:p-2.5 rounded-xl bg-white/90 hover:bg-white text-lab-800 border border-lab-200 shadow-md transition-transform active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              </button>
+              <button onclick="toggleCameraAutoRotate()" id="btn-cam-rotate" title="Кинематографиялық айналу" class="p-2 sm:p-2.5 rounded-xl bg-tech-blue text-white shadow-md transition-transform active:scale-95 text-xs font-bold">
+                🔄
+              </button>
+            </div>
+
+            <!-- Touch / Interactive Hint Bar (Bottom) -->
+            <div class="absolute bottom-2.5 inset-x-0 pointer-events-none flex justify-center z-10 px-3">
+              <span class="text-[10px] sm:text-[11px] font-mono text-slate-500 bg-white/85 backdrop-blur-sm px-3 py-1 rounded-full border border-slate-200/90 shadow-sm flex items-center gap-1.5">
+                <span>👆</span>
+                <span>3D Айналдыру • Шымшу арқылы масштабтау (Zoom)</span>
+              </span>
+            </div>
+
+          </div>
         </div>
 
-        <!-- TOP-LEFT: DYNAMIC HUD OVERLAY FOR BIG SCREEN -->
-        <div class="absolute top-4 left-4 lab-card p-4 rounded-2xl border-slate-200 max-w-sm pointer-events-none shadow-lg">
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <span class="text-xs font-extrabold text-tech-blue font-mono" id="hud-badge-title">ӨСУ ДИНАМИКАСЫ</span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-tech-emerald/10 text-tech-emerald border border-tech-emerald/30 font-mono" id="hud-status-chip">
-              АВТО-РЕЖИМ
-            </span>
-          </div>
-          <h3 class="text-base font-black text-lab-900" id="hud-main-heading">14-ШІ КҮН: ВЕГЕТАТИВТІ ФАЗА</h3>
-          <p class="text-xs text-lab-700 mt-1 leading-relaxed" id="hud-description-text">
-            Сабақ ұзындығы қарқынды артуда. Бақылау тобында ($1g$) тамыр вертикаль өссе, клиностатта ($0g$) тамырдың гравитропиялық дезориентациясы айқын байқалады.
-          </p>
+        <!-- RIGHT (4 COLS): INTERACTIVE CONTROLS & SCIENTIFIC HUD PANEL -->
+        <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-2xl border border-lab-200 shadow-md flex flex-col justify-between space-y-4">
 
-          <!-- Auto-Progress Bar for Day Switch -->
-          <div id="timeline-progress-container" class="mt-3 pt-2.5 border-t border-lab-200 space-y-1">
+          <!-- Top: Header with Mode Tag & Live Status Chip -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <span class="text-xs font-extrabold text-tech-blue font-mono flex items-center gap-1.5" id="hud-badge-title">
+                <span>🌱</span> ӨСУ ДИНАМИКАСЫ
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-tech-emerald/10 text-tech-emerald border border-tech-emerald/30 font-mono" id="hud-status-chip">
+                АВТО-РЕЖИМ
+              </span>
+            </div>
+
+            <!-- CONTROLS FOR PLANTS (DAYS 1, 7, 14, 21) -->
+            <div id="plants-day-selector" class="space-y-1.5">
+              <span class="text-[11px] font-bold text-slate-500 font-mono uppercase tracking-wider block">Тәжірибе күнін таңдау:</span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-1.5">
+                <button onclick="setSeedDay(1, true)" id="btn-seed-1" class="px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200 text-center">
+                  1-ші күн
+                </button>
+                <button onclick="setSeedDay(7, true)" id="btn-seed-7" class="px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200 text-center">
+                  7-ші күн
+                </button>
+                <button onclick="setSeedDay(14, true)" id="btn-seed-14" class="px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-tech-blue text-white shadow-sm text-center">
+                  14-ші күн
+                </button>
+                <button onclick="setSeedDay(21, true)" id="btn-seed-21" class="px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200 text-center">
+                  21-ші күн
+                </button>
+              </div>
+            </div>
+
+            <!-- CONTROLS FOR CLINOSTAT -->
+            <div id="clinostat-controls" class="hidden space-y-2 pt-1 font-mono text-xs">
+              <button onclick="toggleClinostatSpin()" id="btn-spin-toggle" class="w-full px-3.5 py-2.5 rounded-xl bg-tech-blue hover:bg-tech-sky text-white font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95">
+                <span id="spin-icon">⏸</span>
+                <span id="spin-label">Айналуды тоқтату</span>
+              </button>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px] text-lab-700">
+                <span class="font-bold text-tech-blue">≈ 1.5 айн/мин</span>
+                <span class="text-slate-500">2-өзара перпендикуляр ось</span>
+              </div>
+            </div>
+
+            <!-- CONTROLS FOR ARDUINO -->
+            <div id="arduino-controls" class="hidden space-y-2 pt-1 font-mono text-xs">
+              <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-center font-bold">
+                ATmega328P • 4x Relay • DHT22
+              </div>
+              <p class="text-slate-600 text-[11px] text-center leading-relaxed">
+                Автоматты логикалық басқару блогы (жарық, температура, ылғалдылық)
+              </p>
+            </div>
+          </div>
+
+          <!-- Middle: Dynamic Scientific Phase Heading & Description -->
+          <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+            <h3 class="text-sm sm:text-base font-black text-lab-900 leading-snug" id="hud-main-heading">14-ШІ КҮН: ВЕГЕТАТИВТІ ФАЗА</h3>
+            <p class="text-xs text-lab-700 leading-relaxed" id="hud-description-text">
+              Сабақ ұзындығы қарқынды артуда. Бақылау тобында ($1g$) тамыр вертикаль өссе, клиностатта ($0g$) тамырдың гравитропиялық дезориентациясы айқын байқалады.
+            </p>
+          </div>
+
+          <!-- Bottom: Auto-Switch Progress Bar -->
+          <div id="timeline-progress-container" class="pt-2 border-t border-slate-100 space-y-1.5">
             <div class="flex justify-between text-[11px] font-mono text-lab-700">
               <span>Авто-ауысу таймері:</span>
               <span id="timeline-sec-left" class="font-bold text-tech-blue">6 сек</span>
             </div>
-            <div class="w-full h-1.5 bg-lab-200 rounded-full overflow-hidden">
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
               <div id="timeline-progress-bar" class="h-full bg-gradient-to-r from-tech-blue to-tech-emerald progress-bar-fill" style="width: 50%;"></div>
             </div>
           </div>
-        </div>
 
-        <!-- BOTTOM CONTROLS FOR PLANTS (DAYS 1, 7, 14, 21) -->
-        <div id="plants-day-selector" class="absolute bottom-4 left-4 right-4 sm:right-auto lab-card p-2.5 rounded-2xl border-slate-200 flex flex-wrap items-center gap-2 shadow-lg z-20">
-          <span class="text-xs font-bold text-lab-800 font-mono px-2">Тәжірибе күні:</span>
-          
-          <button onclick="setSeedDay(1, true)" id="btn-seed-1" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200">
-            1-ші күн
-          </button>
-          <button onclick="setSeedDay(7, true)" id="btn-seed-7" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200">
-            7-ші күн
-          </button>
-          <button onclick="setSeedDay(14, true)" id="btn-seed-14" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-tech-blue text-white shadow-sm">
-            14-ші күн
-          </button>
-          <button onclick="setSeedDay(21, true)" id="btn-seed-21" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200">
-            21-ші күн (Қорытынды)
-          </button>
-        </div>
-
-        <!-- BOTTOM CONTROLS FOR CLINOSTAT -->
-        <div id="clinostat-controls" class="hidden absolute bottom-4 left-4 right-4 sm:right-auto lab-card p-2.5 rounded-2xl border-slate-200 flex flex-wrap items-center gap-2.5 shadow-lg z-20 font-mono text-xs">
-          <button onclick="toggleClinostatSpin()" id="btn-spin-toggle" class="px-3.5 py-1.5 rounded-xl bg-tech-blue hover:bg-tech-sky text-white font-bold flex items-center gap-1.5">
-            <span id="spin-icon">⏸</span>
-            <span id="spin-label">Айналуды тоқтату</span>
-          </button>
-          <span class="px-2 py-1 rounded-lg bg-lab-100 font-bold text-tech-blue">≈ 1.5 айн/мин</span>
-          <span class="text-lab-700 text-[11px] border-l border-lab-200 pl-2">2-өзара перпендикуляр осьтер</span>
-        </div>
-
-        <!-- BOTTOM CONTROLS FOR ARDUINO -->
-        <div id="arduino-controls" class="hidden absolute bottom-4 left-4 right-4 sm:right-auto lab-card p-2.5 rounded-2xl border-slate-200 flex flex-wrap items-center gap-2.5 shadow-lg z-20 font-mono text-xs">
-          <span class="px-2 py-1 rounded-lg bg-lab-100 font-bold text-tech-emerald">ATmega328P • 4x Relay • DHT22</span>
-          <span class="text-lab-700 text-[11px]">Автоматты логикалық басқару блогы</span>
-        </div>
-
-        <!-- CAMERA RESET & VIEW BUTTONS (TOP RIGHT) -->
-        <div class="absolute top-4 right-4 flex flex-col gap-2 z-20">
-          <button onclick="resetCameraView()" title="Камераны қалпына келтіру" class="p-2.5 rounded-xl bg-white/90 hover:bg-white text-lab-800 border border-lab-200 shadow-md transition-transform active:scale-95">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          </button>
-          <button onclick="toggleCameraAutoRotate()" id="btn-cam-rotate" title="Кинематографиялық айналу" class="p-2.5 rounded-xl bg-tech-blue text-white shadow-md transition-transform active:scale-95">
-            🔄
-          </button>
         </div>
 
       </div>
 
       <!-- Quick biological explanation cards below 3D -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 pt-2">
         <div class="p-3 rounded-2xl bg-white border border-lab-200 space-y-1">
           <div class="flex items-center justify-between text-xs font-bold text-tech-blue font-mono">
             <span>1-ші күн</span>
@@ -429,34 +462,34 @@
           </div>
 
           <!-- Compact Actuator Live Status Strip (Outside Viewport - 100% Clean 3D View) -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
-            <div id="twin-tag-fan" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all">
-              <span class="w-2 h-2 rounded-full bg-slate-400" id="twin-dot-fan"></span>
-              <span>DC КУЛЕР: <strong id="twin-txt-fan">ӨШІРУЛІ</strong></span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 font-mono text-[10px] sm:text-[11px]">
+            <div id="twin-tag-fan" class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all text-center">
+              <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0" id="twin-dot-fan"></span>
+              <span class="truncate">DC КУЛЕР: <strong id="twin-txt-fan">ӨШІРУЛІ</strong></span>
             </div>
-            <div id="twin-tag-pump" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all">
-              <span class="w-2 h-2 rounded-full bg-slate-400" id="twin-dot-pump"></span>
-              <span>АВТО-СУАРУ: <strong id="twin-txt-pump">ӨШІРУЛІ</strong></span>
+            <div id="twin-tag-pump" class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all text-center">
+              <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0" id="twin-dot-pump"></span>
+              <span class="truncate">АВТО-СУАРУ: <strong id="twin-txt-pump">ӨШІРУЛІ</strong></span>
             </div>
-            <div id="twin-tag-led" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all">
-              <span class="w-2 h-2 rounded-full bg-slate-400" id="twin-dot-led"></span>
-              <span>ФИТОЖАРЫҚ: <strong id="twin-txt-led">ӨШІРУЛІ</strong></span>
+            <div id="twin-tag-led" class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all text-center">
+              <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0" id="twin-dot-led"></span>
+              <span class="truncate">ФИТОЖАРЫҚ: <strong id="twin-txt-led">ӨШІРУЛІ</strong></span>
             </div>
-            <div id="twin-tag-heater" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all">
-              <span class="w-2 h-2 rounded-full bg-slate-400" id="twin-dot-heater"></span>
-              <span>ЖЫЛЫТҚЫШ PTC: <strong id="twin-txt-heater">ӨШІРУЛІ</strong></span>
+            <div id="twin-tag-heater" class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-lab-700 shadow-sm flex items-center justify-center gap-1.5 transition-all text-center">
+              <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0" id="twin-dot-heater"></span>
+              <span class="truncate">ЖЫЛЫТҚЫШ: <strong id="twin-txt-heater">ӨШІРУЛІ</strong></span>
             </div>
           </div>
 
-          <!-- 3D Viewport Box (Fully Unobstructed) -->
-          <div class="relative w-full h-[470px] rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300 shadow-inner group">
+          <!-- 3D Viewport Box (Fully Unobstructed & Responsive) -->
+          <div class="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300 shadow-inner group">
             <div id="twin-3d-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
             <!-- Top Interactive HUD Inspector Banner -->
             <div class="absolute top-3 inset-x-3 pointer-events-none z-10 flex justify-center">
               <div id="twin-hover-banner" class="px-3.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm text-xs font-mono text-lab-800 transition-all duration-300 flex items-center gap-2 max-w-[95%] opacity-90">
                 <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse" id="twin-hover-dot"></span>
-                <span id="twin-hover-title" class="font-bold text-slate-800">Кез келген бөлшекке тышқанды апарыңыз</span>
+                <span id="twin-hover-title" class="font-bold text-slate-800">Бөлшекке басыңыз немесе меңзерді апарыңыз</span>
                 <span class="text-slate-400">|</span>
                 <span id="twin-hover-desc" class="text-slate-600 text-[11px] truncate">Интерактивті 3D құрылымды зерттеу</span>
               </div>
@@ -925,14 +958,19 @@
 
     function initThreeScene() {
       const container = document.getElementById('three-canvas-container');
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+      const w = container ? (container.clientWidth || 360) : 360;
+      const h = container ? (container.clientHeight || 440) : 440;
+      const aspect = w / h;
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xF1F5F9); // Light Studio Gray
 
-      camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-      camera.position.set(0, 3.5, 6.5);
+      camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 1000);
+      if (aspect < 1.0) {
+        camera.position.set(0, 3.8, 8.8);
+      } else {
+        camera.position.set(0, 3.5, 6.5);
+      }
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setSize(w, h);
@@ -991,6 +1029,7 @@
       loadAndDisplayModel(modelPaths.seed_14, 'seed_14');
 
       window.addEventListener('resize', onResize);
+      setTimeout(onResize, 150);
       animate3D();
     }
 
@@ -1102,9 +1141,9 @@
       ['plants', 'clinostat', 'arduino', 'chamber'].forEach(m => {
         const tab = document.getElementById('tab-' + m);
         if (m === mode) {
-          tab.className = "px-3.5 py-2 rounded-xl transition-all bg-white text-tech-blue font-bold shadow-sm";
+          tab.className = "px-3.5 py-2 rounded-xl transition-all bg-white text-tech-blue font-bold shadow-sm whitespace-nowrap shrink-0 text-xs";
         } else {
-          tab.className = "px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900";
+          tab.className = "px-3.5 py-2 rounded-xl transition-all text-lab-700 hover:text-lab-900 whitespace-nowrap shrink-0 text-xs";
         }
       });
 
@@ -1143,9 +1182,9 @@
       [1, 7, 14, 21].forEach(d => {
         const btn = document.getElementById('btn-seed-' + d);
         if (d === day) {
-          btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-tech-blue text-white shadow-sm";
+          btn.className = "px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-tech-blue text-white shadow-sm text-center";
         } else {
-          btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200";
+          btn.className = "px-2.5 py-2 rounded-xl text-xs font-bold transition-all bg-lab-100 text-lab-700 hover:bg-lab-200 text-center";
         }
       });
 
@@ -1171,17 +1210,34 @@
     }
 
     function resetCameraView() {
-      camera.position.set(0, 3.5, 6.5);
+      const container = document.getElementById('three-canvas-container');
+      const aspect = container ? (container.clientWidth / (container.clientHeight || 1)) : 1.5;
+      if (aspect < 1.0) {
+        camera.position.set(0, 3.8, 8.8);
+      } else {
+        camera.position.set(0, 3.5, 6.5);
+      }
       controls.target.set(0, 0, 0);
       controls.update();
     }
 
     function onResize() {
       const container = document.getElementById('three-canvas-container');
-      if (!container) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      const aspect = w / h;
+      camera.aspect = aspect;
+
+      if (aspect < 1.0) {
+        controls.minDistance = 3.5;
+        controls.maxDistance = 18;
+      } else {
+        controls.minDistance = 2.5;
+        controls.maxDistance = 14;
+      }
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(w, h);
     }
 
     function animate3D() {
@@ -1448,6 +1504,7 @@
       twinMouse = new THREE.Vector2(-999, -999);
 
       container.addEventListener('pointermove', onTwinPointerMove);
+      container.addEventListener('pointerdown', onTwinPointerMove);
       container.addEventListener('pointerleave', onTwinPointerLeave);
     }
 
@@ -1639,14 +1696,19 @@
     function initDigitalTwinScene() {
       const container = document.getElementById('twin-3d-canvas-container');
       if (!container) return;
-      const w = container.clientWidth || 600;
-      const h = container.clientHeight || 470;
+      const w = container.clientWidth || 360;
+      const h = container.clientHeight || 360;
+      const aspect = w / h;
 
       twinScene = new THREE.Scene();
       twinScene.background = new THREE.Color(0xF1F5F9);
 
-      twinCamera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-      twinCamera.position.set(0, 1.8, 4.5);
+      twinCamera = new THREE.PerspectiveCamera(40, aspect, 0.1, 100);
+      if (aspect < 1.0) {
+        twinCamera.position.set(0, 2.4, 6.4);
+      } else {
+        twinCamera.position.set(0, 1.8, 4.5);
+      }
 
       twinRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
       twinRenderer.setSize(w, h);
@@ -1949,17 +2011,32 @@
     }
 
     function resetTwinCamera() {
-      twinCamera.position.set(0, 1.8, 4.5);
+      const container = document.getElementById('twin-3d-canvas-container');
+      const aspect = container ? (container.clientWidth / (container.clientHeight || 1)) : 1.5;
+      if (aspect < 1.0) {
+        twinCamera.position.set(0, 2.4, 6.4);
+      } else {
+        twinCamera.position.set(0, 1.8, 4.5);
+      }
       twinControls.target.set(0, -0.05, 0);
       twinControls.update();
     }
 
     function onTwinResize() {
       const container = document.getElementById('twin-3d-canvas-container');
-      if (!container || !twinRenderer) return;
-      const w = container.clientWidth || 600;
-      const h = container.clientHeight || 470;
-      twinCamera.aspect = w / h;
+      if (!container || !twinRenderer || !twinCamera) return;
+      const w = container.clientWidth || 360;
+      const h = container.clientHeight || 360;
+      const aspect = w / h;
+      twinCamera.aspect = aspect;
+
+      if (aspect < 1.0) {
+        twinControls.minDistance = 2.2;
+        twinControls.maxDistance = 14.0;
+      } else {
+        twinControls.minDistance = 1.8;
+        twinControls.maxDistance = 8.0;
+      }
       twinCamera.updateProjectionMatrix();
       twinRenderer.setSize(w, h);
     }
